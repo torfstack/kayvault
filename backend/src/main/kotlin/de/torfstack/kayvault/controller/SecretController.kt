@@ -48,7 +48,7 @@ class SecretController(val secretService: SecretService, val tokenVerifier: Toke
                     key = it.secretKey,
                     value = it.secretValue,
                     url = it.secretUrl,
-                    notes = ""
+                    tags = it.secretTags
                 )
             }
     }
@@ -56,14 +56,15 @@ class SecretController(val secretService: SecretService, val tokenVerifier: Toke
     data class SecretRequestEntity(
         val key: String,
         val value: String,
-        val notes: String?,
-        val url: String?
+        val url: String?,
+        val tags: List<String>?
     ) {
         fun toModel(): SecretModel {
             return SecretModel(
                 secretValue = value,
                 secretUrl = url,
-                secretKey = key
+                secretKey = key,
+                secretTags = tags
             )
         }
     }

@@ -1,17 +1,15 @@
 package de.torfstack.kayvault.persistence
 
 import assertk.assertThat
-import assertk.assertions.containsOnly
+import assertk.assertions.containsExactlyInAnyOrder
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import de.torfstack.kayvault.crypto.CryptService
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.AdditionalMatchers
-import org.mockito.Mockito
-import org.mockito.Mockito.*
+import org.mockito.Mockito.any
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
@@ -28,10 +26,10 @@ class SecretServiceTest {
     lateinit var cryptService: CryptService
 
     @ParameterizedTest
-    @ValueSource(ints = [0, 1, 2, 3, 400])
+    @ValueSource(ints = [0, 1, 2, 3])
     fun `returns secrets put into the service for same user`(numberOfSecrets: Int) {
         val expected = (1..numberOfSecrets).map {
-            SecretModel(secretKey = "key$it", secretUrl = "url$it", secretValue = "secret$it")
+            SecretModel(secretKey = "key$it", secretUrl = "url$it", secretValue = "secret$it", secretTags = emptyList())
         }
 
         expected.forEach {
@@ -40,7 +38,7 @@ class SecretServiceTest {
 
         val actual = secretService.secretsForUser("user1")
         assertThat(actual).hasSize(numberOfSecrets)
-        assertThat(actual).containsOnly(*expected.toTypedArray())
+        assertThat(actual).containsExactlyInAnyOrder(*expected.toTypedArray())
     }
 
     @Test

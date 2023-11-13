@@ -11,7 +11,8 @@ class SecretService @Autowired constructor(val repo: SecretRepository, val crypt
             SecretModel(
                 secretUrl = it.secretUrl,
                 secretKey = it.secretKey,
-                secretValue = String(cryptService.decrypt(it.secretValue))
+                secretValue = String(cryptService.decrypt(it.secretValue)),
+                secretTags = it.tags
             )
         }
     }
@@ -22,6 +23,7 @@ class SecretService @Autowired constructor(val repo: SecretRepository, val crypt
                 it.secretValue = cryptService.encrypt(model.secretValue.toByteArray())
                 it.secretKey = model.secretKey
                 it.secretUrl = model.secretUrl
+                it.tags = model.secretTags?.let { it1 -> ArrayList(it1) }
                 it.forUser = user
             }
         )

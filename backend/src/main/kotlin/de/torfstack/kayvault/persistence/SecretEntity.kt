@@ -21,4 +21,8 @@ class SecretEntity {
 
     @Column(name = "forUser")
     var forUser: String = ""
+
+    @ElementCollection(fetch = FetchType.EAGER, )
+    @Column(name = "tags")
+    var tags: List<String>? = null
 }

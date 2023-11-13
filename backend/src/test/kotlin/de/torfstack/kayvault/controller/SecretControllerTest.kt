@@ -1,7 +1,9 @@
 package de.torfstack.kayvault.controller
 
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
 import de.torfstack.kayvault.persistence.SecretService
 import de.torfstack.kayvault.validation.TokenValidator
 import org.junit.jupiter.api.BeforeEach
@@ -63,5 +65,27 @@ class SecretControllerTest {
 
         val secrets = secretService.secretsForUser(MOCK_USER)
         assertThat(secrets).hasSize(1)
+        assertThat(secrets.first().secretValue).isEqualTo("abc-def-ghij")
+    }
+
+    @Test
+    fun `can save tags for a secret`() {
+        mockMvc.perform(post("/secret").header("Authorization", "Bearer $MOCK_USER")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                    "key": "system",
+                    "value": "abc-def-ghij",
+                    "tags": [
+                      "systemA",
+                      "systemB"
+                    ]
+                }
+            """.trimIndent()))
+            .andExpect(status().isOk)
+
+        val secrets = secretService.secretsForUser(MOCK_USER)
+        val model = secrets.first()
+        assertThat(model.secretTags!!).containsExactly("systemA", "systemB")
     }
 }
