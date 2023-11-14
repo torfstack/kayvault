@@ -6,11 +6,13 @@ import de.torfstack.kayvault.validation.TokenValidator
 import mu.KotlinLogging
 import org.springframework.web.bind.annotation.*
 
-val Log = KotlinLogging.logger{}
-
 @RestController
 @CrossOrigin
 class SecretController(val secretService: SecretService, val tokenVerifier: TokenValidator) {
+
+    companion object {
+        val Log = KotlinLogging.logger {}
+    }
 
     @GetMapping("secret")
     fun getSecret(@RequestHeader authorization: String): List<SecretRequestEntity> {
