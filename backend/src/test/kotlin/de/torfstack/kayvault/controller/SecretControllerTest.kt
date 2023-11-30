@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.*
 import de.torfstack.kayvault.persistence.SecretService
 import de.torfstack.kayvault.validation.TokenValidator
+import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -16,8 +17,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -61,9 +61,10 @@ class SecretControllerTest {
             """.trimIndent()))
             .andExpect(status().isOk)
 
-        val secrets = secretService.secretsForUser(MOCK_USER)
-        assertThat(secrets).hasSize(1)
-        assertThat(secrets.first().secretValue).isEqualTo("abc-def-ghij")
+        mockMvc.perform(get("/secret").header("Authorization", "Bearer $MOCK_USER"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].value", `is`("abc-def-ghij")))
+            .andExpect(jsonPath("$[0].key", `is`("system")))
     }
 
     @Test
