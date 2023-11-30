@@ -1,9 +1,7 @@
 package de.torfstack.kayvault.controller
 
 import assertk.assertThat
-import assertk.assertions.containsExactly
-import assertk.assertions.hasSize
-import assertk.assertions.isEqualTo
+import assertk.assertions.*
 import de.torfstack.kayvault.persistence.SecretService
 import de.torfstack.kayvault.validation.TokenValidator
 import org.junit.jupiter.api.BeforeEach
@@ -87,5 +85,40 @@ class SecretControllerTest {
         val secrets = secretService.secretsForUser(MOCK_USER)
         val model = secrets.first()
         assertThat(model.secretTags!!).containsExactly("systemA", "systemB")
+    }
+
+    @Test
+    fun `can save secret without tags`() {
+        mockMvc.perform(post("/secret").header("Authorization", "Bearer $MOCK_USER")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                    "key": "system",
+                    "value": "abc-def-ghij",
+                    "tags": []
+                }
+            """.trimIndent()))
+            .andExpect(status().isOk)
+
+        val secrets = secretService.secretsForUser(MOCK_USER)
+        val model = secrets.first()
+        assertThat(model.secretTags!!).isEmpty()
+    }
+
+    @Test
+    fun `can save secret with missing tags`() {
+        mockMvc.perform(post("/secret").header("Authorization", "Bearer $MOCK_USER")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                    "key": "system",
+                    "value": "abc-def-ghij"
+                }
+            """.trimIndent()))
+            .andExpect(status().isOk)
+
+        val secrets = secretService.secretsForUser(MOCK_USER)
+        val model = secrets.first()
+        assertThat(model.secretTags!!).isEmpty()
     }
 }
